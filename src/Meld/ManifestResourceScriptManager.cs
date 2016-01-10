@@ -13,7 +13,7 @@ namespace Meld
     using System.Text.RegularExpressions;
 
     /// <summary>
-    /// Represents the manifest resource script maanger.
+    /// Represents the manifest resource script manager.
     /// </summary>
     /// <seealso cref="Meld.IScriptManager" />
     public class ManifestResourceScriptManager : IScriptManager
@@ -32,7 +32,7 @@ namespace Meld
             return AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(
                     assembly =>
-                    assembly.GetManifestResourceNames()
+                    SafeGetManifestResourceNames(assembly)
                         .Where(name => name.StartsWith(string.Concat(assembly.GetName().Name, ".Scripts.", databaseName)))
                         .Select(
                             resourceName =>
@@ -110,7 +110,19 @@ namespace Meld
                 .Replace(" dbo.", string.Concat(" ", schemaName, "."))
                 .Replace("'dbo.", string.Concat("'", schemaName, "."))
                 .Replace("'dbo'", string.Concat("'", schemaName, "'"));
+        }
 
+        // HACK (Cameron): This is a brute force approach to fix inability to load manifest resources from dynamic assemblies. It should be rewritten.
+        private static string[] SafeGetManifestResourceNames(Assembly assembly)
+        {
+            try
+            {
+                return assembly.GetManifestResourceNames();
+            }
+            catch (NotSupportedException)
+            {
+                return new string[0];
+            }
         }
     }
 }
