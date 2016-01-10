@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{62CB4EBC-B7D7-4919-850D-4BDA4B3B4EAA}"
+	ProjectSection(SolutionItems) = preProject
+		build.bat = build.bat
+		CommonAssemblyInfo.cs = CommonAssemblyInfo.cs
+		Meld.dictionary = Meld.dictionary
+		Meld.msbuild = Meld.msbuild
+		Meld.ruleset = Meld.ruleset
+		nuget.config = nuget.config
+		packages.config = packages.config
+		Settings.StyleCop = Settings.StyleCop
+		Version.txt = Version.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{136EE0D8-FDFD-45AD-A74B-E6A22432030E}"
+	ProjectSection(SolutionItems) = preProject
+		tests\Settings.StyleCop = tests\Settings.StyleCop
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meld", "Meld\Meld.csproj", "{792607B7-E1F2-4F45-B75E-AEE481C20D83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meld.Tests", "tests\Meld.Tests\Meld.Tests.csproj", "{211EFE1F-8DBB-4358-A22D-82F35E4EA286}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{792607B7-E1F2-4F45-B75E-AEE481C20D83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{792607B7-E1F2-4F45-B75E-AEE481C20D83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{792607B7-E1F2-4F45-B75E-AEE481C20D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{792607B7-E1F2-4F45-B75E-AEE481C20D83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{211EFE1F-8DBB-4358-A22D-82F35E4EA286}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{211EFE1F-8DBB-4358-A22D-82F35E4EA286}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{211EFE1F-8DBB-4358-A22D-82F35E4EA286}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{211EFE1F-8DBB-4358-A22D-82F35E4EA286}.Release|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{211EFE1F-8DBB-4358-A22D-82F35E4EA286} = {136EE0D8-FDFD-45AD-A74B-E6A22432030E}
+	EndGlobalSection
+EndGlobal

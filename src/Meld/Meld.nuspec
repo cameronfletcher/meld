@@ -1,0 +1,24 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Meld</id>
+    <title>Meld</title>
+    <version>0.0.1</version>
+    <authors>Cameron Fletcher, 
+Meld contributors</authors>
+    <projectUrl>https://github.com/cameronfletcher/meld/wiki</projectUrl>
+    <iconUrl>http://nuget.cameronfletcher.com/icons/meld.png</iconUrl>
+    <licenseUrl>https://raw.githubusercontent.com/cameronfletcher/meld/dev/LICENSE.mit.txt</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A database version management library for SQL Server and .NET</description>
+    <releaseNotes>TBD</releaseNotes>
+    <copyright>Copyright (c) Meld contributors.</copyright>
+    <tags>Meld SQL Server script version management evolve evolution</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework="net45" />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+    <file src="bin\Release\Meld.pdb" target="lib\net45" />
+  </files>
+</package>
