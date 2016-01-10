@@ -1,4 +1,4 @@
-Skeleton
-========
+Meld
+====
 
-An skeleton solution.
+A database version management library for SQL Server and .NET.
