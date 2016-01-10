@@ -20,5 +20,6 @@ Meld contributors</authors>
   </metadata>
   <files>
     <file src="bin\Release\Meld.pdb" target="lib\net45" />
+    <file src="Scripts\*.sql" target="sql" />
   </files>
 </package>
