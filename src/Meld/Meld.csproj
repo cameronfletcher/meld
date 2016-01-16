@@ -48,6 +48,7 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ConcurrentSet.cs" />
     <Compile Include="Guard.cs" />
     <Compile Include="GuardExtensions.cs" />
     <Compile Include="IScriptManager.cs" />
@@ -74,7 +75,7 @@
       <Link>Properties\Meld.snk</Link>
     </None>
     <None Include="packages.config" />
-    <AdditionalFiles  Include="stylecop.json" />
+    <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

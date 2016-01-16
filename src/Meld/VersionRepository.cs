@@ -13,7 +13,7 @@ namespace Meld
     {
         internal const string SchemaName = "database";
 
-        private static readonly HashSet<string> InitializedDatabases = new HashSet<string>();
+        private static readonly ConcurrentSet<string> InitializedDatabases = new ConcurrentSet<string>(StringComparer.OrdinalIgnoreCase);
 
         private readonly string connectionString;
 
@@ -21,10 +21,8 @@ namespace Meld
         {
             Guard.Against.Null(() => connectionString);
 
-            // NOTE (Cameron): This is not designed to be thread safe.
-            if (!InitializedDatabases.Contains(connectionString))
+            if (InitializedDatabases.TryAdd(connectionString))
             {
-                InitializedDatabases.Add(connectionString);
                 new SqlConnection(connectionString).InitializeSchema(SchemaName, typeof(VersionRepository));
             }
 
