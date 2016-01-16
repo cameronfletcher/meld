@@ -79,8 +79,8 @@ namespace Meld
                 .FirstOrDefault();
 
             return string.Concat(
-                assemblyName.Name, 
-                " ", 
+                assemblyName.Name,
+                " ",
                 versionAttribute == null ? assemblyName.Version.ToString() : versionAttribute.InformationalVersion);
         }
 
@@ -92,8 +92,8 @@ namespace Meld
             {
                 return Regex
                     .Split(
-                        reader.ReadToEnd(), 
-                        @"^\s*GO\s* ($ | \-\- .*$)", 
+                        reader.ReadToEnd(),
+                        @"^\s*GO\s* ($ | \-\- .*$)",
                         RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase)
                     .Where(sqlScript => !string.IsNullOrWhiteSpace(sqlScript))
                     .Select(sqlScript => sqlScript.Trim(' ', '\r', '\n'))
