@@ -4,7 +4,9 @@
 
 namespace Meld
 {
+    using System;
     using System.Data.SqlClient;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
@@ -26,6 +28,11 @@ namespace Meld
             this.schemaName = schemaName;
         }
 
+        [SuppressMessage(
+            "Microsoft.Globalization",
+            "CA1303:Do not pass literals as localized parameters",
+            MessageId = "Meld.IScriptManager.ThrowMissingScriptException(System.String)",
+            Justification = "No localization here.")]
         public void Initialize(SqlDatabase sqlDatabase)
         {
             Guard.Against.Null(() => sqlDatabase);
@@ -53,6 +60,11 @@ namespace Meld
                         CultureInfo.InvariantCulture,
                         "Cannot find any SQL scripts for the database named '{0}'.",
                         this.databaseName));
+            }
+
+            if (sqlScripts.Any(sqlScript => sqlScript == null))
+            {
+                throw new ArgumentException("One or more of the scripts returned from the script manager has a null value.");
             }
 
             if (sqlScripts.Min(script => script.Version != 1))

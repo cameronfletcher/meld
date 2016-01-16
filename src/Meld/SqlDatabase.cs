@@ -8,10 +8,11 @@ namespace Meld
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Data.SqlClient;
+    using System.Diagnostics.CodeAnalysis;
 
     internal class SqlDatabase
     {
-        private static readonly ConcurrentDictionary<Key, Database> DatabaseRegistry = new ConcurrentDictionary<Key, Database>();
+        private static readonly ConcurrentDictionary<Key, Database> DatabaseRegistry = new ConcurrentDictionary<Key, Database>(new Key.Comparer());
 
         private readonly string name;
 
@@ -60,6 +61,7 @@ namespace Meld
         }
 
         // LINK (Cameron): http://stackoverflow.com/questions/17008902/sending-several-sql-commands-in-a-single-transaction
+        [SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "No vulnerability.")]
         public void Execute(IEnumerable<SqlScript> sqlScripts)
         {
             Guard.Against.NullOrEmptyOrNullElements(() => sqlScripts);
@@ -76,7 +78,11 @@ namespace Meld
                         {
                             foreach (var batch in sqlScript.Batches)
                             {
-                                new SqlCommand(batch, connection, transaction).ExecuteNonQuery();
+                                using (var command = new SqlCommand(batch, connection, transaction))
+                                {
+                                    // NOTE (Cameron): Wow, that indented quickly.
+                                    command.ExecuteNonQuery();
+                                }
                             }
                         }
 
@@ -115,6 +121,8 @@ namespace Meld
 
             public class Comparer : IEqualityComparer<Key>
             {
+                [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "It's private.")]
+                [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "1", Justification = "It's private.")]
                 public bool Equals(Key x, Key y)
                 {
                     return string.Equals(x.DatabaseName, y.DatabaseName, StringComparison.OrdinalIgnoreCase) &&
@@ -122,6 +130,7 @@ namespace Meld
                 }
 
                 // LINK (Cameron): http://stackoverflow.com/questions/263400/what-is-the-best-algorithm-for-an-overridden-system-object-gethashcode
+                [SuppressMessage("Microsoft.Design", "CA1062:Validate arguments of public methods", MessageId = "0", Justification = "It's private.")]
                 public int GetHashCode(Key obj)
                 {
                     unchecked

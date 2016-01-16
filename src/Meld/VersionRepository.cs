@@ -8,6 +8,7 @@ namespace Meld
     using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Globalization;
 
     internal class VersionRepository : IVersionRepository
     {
@@ -21,9 +22,10 @@ namespace Meld
         {
             Guard.Against.Null(() => connectionString);
 
+            // NOTE (Cameron): This is *not* an example of how to use Meld.
             if (InitializedDatabases.TryAdd(connectionString))
             {
-                new SqlConnection(connectionString).InitializeSchema(SchemaName, typeof(VersionRepository));
+                new SqlDatabase(connectionString, typeof(VersionRepository)).InitializeSchema(SchemaName);
             }
 
             this.connectionString = connectionString;
@@ -45,7 +47,7 @@ namespace Meld
                 {
                     reader.Read();
                     var result = reader["Version"];
-                    return result == DBNull.Value ? 0 : Convert.ToInt32(result);
+                    return result == DBNull.Value ? 0 : Convert.ToInt32(result, CultureInfo.InvariantCulture);
                 }
             }
         }

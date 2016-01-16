@@ -6,6 +6,8 @@ namespace Meld
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -33,7 +35,8 @@ namespace Meld
                 .SelectMany(
                     assembly =>
                     SafeGetManifestResourceNames(assembly)
-                        .Where(name => name.StartsWith(string.Concat(assembly.GetName().Name, ".Scripts.", databaseName)))
+                        .Where(name =>
+                            name.StartsWith(string.Concat(assembly.GetName().Name, ".Scripts.", databaseName), StringComparison.OrdinalIgnoreCase))
                         .Select(
                             resourceName =>
                             new
@@ -68,7 +71,8 @@ namespace Meld
             return int.Parse(
                 resourceName
                     .Replace(string.Concat(assembly.GetName().Name, ".Scripts.", databaseName), string.Empty)
-                    .Replace(".sql", string.Empty));
+                    .Replace(".sql", string.Empty),
+                CultureInfo.InvariantCulture);
         }
 
         private static string GetSqlScriptDescription(Assembly assembly)
@@ -85,6 +89,7 @@ namespace Meld
         }
 
         // LINK (Cameron): http://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It's OK here.")]
         private static string[] GetSqlScriptBatches(Assembly assembly, string resourceName, string schemaName)
         {
             using (var stream = assembly.GetManifestResourceStream(resourceName))
