@@ -5,14 +5,14 @@
 namespace Meld
 {
     using System;
+    using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
 
     internal class VersionRepository : IVersionRepository
     {
+        private static readonly HashSet<string> InitializedDatabases = new HashSet<string>();
         internal static readonly string SchemaName = "database";
-
-        private static bool IsInitialized;
 
         private readonly string connectionString;
 
@@ -21,9 +21,9 @@ namespace Meld
             Guard.Against.Null(() => connectionString);
 
             // NOTE (Cameron): This is not designed to be thread safe.
-            if (!IsInitialized)
+            if (!InitializedDatabases.Contains(connectionString))
             {
-                IsInitialized = true;
+                InitializedDatabases.Add(connectionString);
                 new SqlConnection(connectionString).InitializeSchema(SchemaName, typeof(VersionRepository));
             }
 
