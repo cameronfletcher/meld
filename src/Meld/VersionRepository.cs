@@ -25,7 +25,7 @@ namespace Meld
             // NOTE (Cameron): This is *not* an example of how to use Meld.
             if (InitializedDatabases.TryAdd(connectionString))
             {
-                new SqlDatabase(connectionString, typeof(VersionRepository)).InitializeSchema(SchemaName);
+                new SqlDatabase(connectionString, "Meld").InitializeSchema(SchemaName);
             }
 
             this.connectionString = connectionString;

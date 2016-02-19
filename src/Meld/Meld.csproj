@@ -63,8 +63,8 @@
     <Compile Include="VersionRepository.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Scripts\Version01.sql" />
-    <EmbeddedResource Include="Scripts\Version02.sql" />
+    <EmbeddedResource Include="Scripts\Meld01.sql" />
+    <EmbeddedResource Include="Scripts\Meld02.sql" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\Meld.dictionary">
