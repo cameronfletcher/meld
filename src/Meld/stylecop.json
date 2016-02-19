@@ -1,8 +1,4 @@
-﻿// <copyright file="SqlDatabaseSchema.cs" company="Meld contributors">
-//  Copyright (c) Meld contributors. All rights reserved.
-// </copyright>
-
-{
+﻿{
     "$schema": "https://raw.githubusercontent.com/DotNetAnalyzers/StyleCopAnalyzers/master/StyleCop.Analyzers/StyleCop.Analyzers/Settings/stylecop.schema.json",
     "settings": {
         "documentationRules": {
