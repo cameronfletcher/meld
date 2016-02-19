@@ -11,8 +11,9 @@ namespace Meld
 
     internal class VersionRepository : IVersionRepository
     {
+        internal const string SchemaName = "database";
+
         private static readonly HashSet<string> InitializedDatabases = new HashSet<string>();
-        internal static readonly string SchemaName = "database";
 
         private readonly string connectionString;
 

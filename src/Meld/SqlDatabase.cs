@@ -46,7 +46,7 @@ namespace Meld
             Guard.Against.NullOrEmpty(() => schemaName);
 
             var database = DatabaseRegistry.GetOrAdd(
-                new Key { DatabaseName = this.name, SchemaName = schemaName }, 
+                new Key { DatabaseName = this.name, SchemaName = schemaName },
                 key => new Database { Schema = new SqlDatabaseSchema(key.DatabaseName, key.SchemaName) });
 
             if (database.ConnectionStrings.Contains(this.ConnectionString))
@@ -73,9 +73,11 @@ namespace Meld
                     try
                     {
                         foreach (var sqlScript in sqlScripts)
-                        foreach (var batch in sqlScript.Batches)
                         {
-                            new SqlCommand(batch, connection, transaction).ExecuteNonQuery();
+                            foreach (var batch in sqlScript.Batches)
+                            {
+                                new SqlCommand(batch, connection, transaction).ExecuteNonQuery();
+                            }
                         }
 
                         transaction.Commit();
@@ -125,8 +127,8 @@ namespace Meld
                     unchecked
                     {
                         int hash = 17;
-                        hash = hash * 23 + obj.DatabaseName.GetHashCode();
-                        hash = hash * 23 + obj.SchemaName.GetHashCode();
+                        hash = (hash * 23) + obj.DatabaseName.GetHashCode();
+                        hash = (hash * 23) + obj.SchemaName.GetHashCode();
                         return hash;
                     }
                 }
