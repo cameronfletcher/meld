@@ -4,6 +4,8 @@
 
 namespace Meld
 {
+    using System.Diagnostics.CodeAnalysis;
+
     /// <summary>
     /// Represents a SQL script.
     /// </summary>
@@ -25,6 +27,7 @@ namespace Meld
         /// Gets or sets the batches for the script.
         /// </summary>
         /// <value>The batches.</value>
+        [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "By design.")]
         public string[] Batches { get; set; }
     }
 }

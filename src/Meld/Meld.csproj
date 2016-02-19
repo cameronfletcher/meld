@@ -23,6 +23,7 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\Debug\Meld.xml</DocumentationFile>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <CodeAnalysisRuleSet>..\Meld.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -35,6 +36,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\Meld.xml</DocumentationFile>
+    <CodeAnalysisRuleSet>..\Meld.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -46,6 +48,8 @@
     <Compile Include="..\CommonAssemblyInfo.cs">
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ConcurrentSet.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Guard.cs" />
     <Compile Include="GuardExtensions.cs" />
     <Compile Include="IScriptManager.cs" />
@@ -72,6 +76,7 @@
       <Link>Properties\Meld.snk</Link>
     </None>
     <None Include="packages.config" />
+    <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -80,6 +85,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Meld.nuspec" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0-rc3\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
+    <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0-rc3\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0-rc3\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
