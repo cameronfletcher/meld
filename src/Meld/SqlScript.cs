@@ -4,6 +4,8 @@
 
 namespace Meld
 {
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
@@ -18,18 +20,13 @@ namespace Meld
         /// <param name="version">The version.</param>
         /// <param name="description">The description.</param>
         /// <param name="sqlBatches">The SQL batches.</param>
-        public SqlScript(int version, string description, string[] sqlBatches)
+        public SqlScript(int version, string description, IEnumerable<string> sqlBatches)
         {
             Guard.Against.NullOrEmptyOrNullElements(() => sqlBatches);
 
             this.Version = version;
             this.Description = description;
-            this.SqlBatches =
-                new[]
-                {
-                    "IF NOT EXISTS (SELECT * FROM information_schema.schemata WHERE schema_name = 'dbo') EXEC sp_executesql N'CREATE SCHEMA [dbo];';"
-                }
-                .Concat(sqlBatches).ToArray();
+            this.SqlBatches = sqlBatches.ToArray();
         }
 
         /// <summary>
