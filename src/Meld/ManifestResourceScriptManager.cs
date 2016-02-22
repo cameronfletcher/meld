@@ -47,12 +47,10 @@ namespace Meld
                             }))
                 .Select(
                     sqlScript =>
-                    new SqlScript
-                    {
-                        Version = GetSqlScriptVersion(sqlScript.Assembly, sqlScript.ResourceName, databaseName),
-                        Description = GetSqlScriptDescription(sqlScript.Assembly),
-                        Batches = GetSqlScriptBatches(sqlScript.Assembly, sqlScript.ResourceName, schemaName),
-                    })
+                    new SqlScript(
+                        GetSqlScriptVersion(sqlScript.Assembly, sqlScript.ResourceName, databaseName),
+                        GetSqlScriptDescription(sqlScript.Assembly),
+                        GetSqlScriptBatches(sqlScript.Assembly, sqlScript.ResourceName, schemaName)))
                 .OrderBy(sqlScript => sqlScript.Version)
                 .ToArray();
         }

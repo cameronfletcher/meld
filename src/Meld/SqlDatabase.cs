@@ -76,7 +76,7 @@ namespace Meld
                     {
                         foreach (var sqlScript in sqlScripts)
                         {
-                            foreach (var batch in sqlScript.Batches)
+                            foreach (var batch in sqlScript.SqlBatches)
                             {
                                 using (var command = new SqlCommand(batch, connection, transaction))
                                 {

@@ -1,10 +1,4 @@
-﻿IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = N'dbo')
-BEGIN
-    EXEC('CREATE SCHEMA [dbo]');
-END
-GO
-
-CREATE TABLE [dbo].[Version]
+﻿CREATE TABLE [dbo].[Version]
 (
 	[Version] INT NOT NULL , 
     [Type] VARCHAR(511) NOT NULL, 
