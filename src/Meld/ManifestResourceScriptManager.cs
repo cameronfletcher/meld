@@ -36,7 +36,8 @@ namespace Meld
                     assembly =>
                     SafeGetManifestResourceNames(assembly)
                         .Where(name =>
-                            name.StartsWith(string.Concat(assembly.GetName().Name, ".Scripts.", databaseName), StringComparison.OrdinalIgnoreCase))
+                            name.StartsWith(string.Concat(assembly.GetName().Name, ".Scripts.", databaseName), StringComparison.OrdinalIgnoreCase) ||
+                            name.StartsWith(string.Concat("Meld.Scripts.", databaseName), StringComparison.OrdinalIgnoreCase))
                         .Select(
                             resourceName =>
                             new
@@ -71,6 +72,7 @@ namespace Meld
             return int.Parse(
                 resourceName
                     .Replace(string.Concat(assembly.GetName().Name, ".Scripts.", databaseName), string.Empty)
+                    .Replace(string.Concat("Meld.Scripts.", databaseName), string.Empty)
                     .Replace(".sql", string.Empty),
                 CultureInfo.InvariantCulture);
         }
