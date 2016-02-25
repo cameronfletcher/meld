@@ -15,9 +15,8 @@ namespace Meld
         /// Gets the SQL scripts.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
-        /// <param name="schemaName">Name of the schema.</param>
         /// <returns>The SQL scripts.</returns>
-        IEnumerable<SqlScript> GetSqlScripts(string databaseName, string schemaName);
+        IEnumerable<SqlScript> GetSqlScripts(string databaseName);
 
         /// <summary>
         /// Throws a missing script exception.

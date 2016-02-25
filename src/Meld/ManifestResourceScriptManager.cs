@@ -24,12 +24,10 @@ namespace Meld
         /// Gets the SQL scripts.
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
-        /// <param name="schemaName">Name of the schema.</param>
         /// <returns>The SQL scripts.</returns>
-        public IEnumerable<SqlScript> GetSqlScripts(string databaseName, string schemaName)
+        public IEnumerable<SqlScript> GetSqlScripts(string databaseName)
         {
             Guard.Against.NullOrEmpty(() => databaseName);
-            Guard.Against.NullOrEmpty(() => schemaName);
 
             return AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(
@@ -47,12 +45,10 @@ namespace Meld
                             }))
                 .Select(
                     sqlScript =>
-                    new SqlScript
-                    {
-                        Version = GetSqlScriptVersion(sqlScript.Assembly, sqlScript.ResourceName, databaseName),
-                        Description = GetSqlScriptDescription(sqlScript.Assembly),
-                        Batches = GetSqlScriptBatches(sqlScript.Assembly, sqlScript.ResourceName, schemaName),
-                    })
+                    new SqlScript(
+                        GetSqlScriptVersion(sqlScript.Assembly, sqlScript.ResourceName, databaseName),
+                        GetSqlScriptDescription(sqlScript.Assembly),
+                        GetSqlScriptBatches(sqlScript.Assembly, sqlScript.ResourceName)))
                 .OrderBy(sqlScript => sqlScript.Version)
                 .ToArray();
         }
@@ -92,7 +88,7 @@ namespace Meld
 
         // LINK (Cameron): http://stackoverflow.com/questions/18596876/go-statements-blowing-up-sql-execution-in-net
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "It's OK here.")]
-        private static string[] GetSqlScriptBatches(Assembly assembly, string resourceName, string schemaName)
+        private static string[] GetSqlScriptBatches(Assembly assembly, string resourceName)
         {
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             using (var reader = new StreamReader(stream))
@@ -104,19 +100,8 @@ namespace Meld
                         RegexOptions.Multiline | RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase)
                     .Where(sqlScript => !string.IsNullOrWhiteSpace(sqlScript))
                     .Select(sqlScript => sqlScript.Trim(' ', '\r', '\n'))
-                    .Select(sqlScript => ReplaceSchema(sqlScript, schemaName))
                     .ToArray();
             }
-        }
-
-        // TODO (Cameron): This is a mess, so reg-ex? lol
-        private static string ReplaceSchema(string sqlScriptBatch, string schemaName)
-        {
-            return sqlScriptBatch
-                .Replace("[dbo]", string.Concat("[", schemaName, "]"))
-                .Replace(" dbo.", string.Concat(" ", schemaName, "."))
-                .Replace("'dbo.", string.Concat("'", schemaName, "."))
-                .Replace("'dbo'", string.Concat("'", schemaName, "'"));
         }
 
         // HACK (Cameron): This is a brute force approach to fix inability to load manifest resources from dynamic assemblies. It should be rewritten.

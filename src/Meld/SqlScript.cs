@@ -4,7 +4,10 @@
 
 namespace Meld
 {
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
 
     /// <summary>
     /// Represents a SQL script.
@@ -12,22 +15,37 @@ namespace Meld
     public class SqlScript
     {
         /// <summary>
-        /// Gets or sets the version for the script.
+        /// Initializes a new instance of the <see cref="SqlScript"/> class.
+        /// </summary>
+        /// <param name="version">The version.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="sqlBatches">The SQL batches.</param>
+        public SqlScript(int version, string description, IEnumerable<string> sqlBatches)
+        {
+            Guard.Against.NullOrEmptyOrNullElements(() => sqlBatches);
+
+            this.Version = version;
+            this.Description = description;
+            this.SqlBatches = sqlBatches.ToArray();
+        }
+
+        /// <summary>
+        /// Gets the version for the script.
         /// </summary>
         /// <value>The version.</value>
-        public int Version { get; set; }
+        public int Version { get; private set; }
 
         /// <summary>
-        /// Gets or sets the description for the script.
+        /// Gets the description for the script.
         /// </summary>
         /// <value>The description.</value>
-        public string Description { get; set; }
+        public string Description { get; private set; }
 
         /// <summary>
-        /// Gets or sets the batches for the script.
+        /// Gets the SQL batches for the script.
         /// </summary>
-        /// <value>The batches.</value>
+        /// <value>The SQL batches.</value>
         [SuppressMessage("Microsoft.Performance", "CA1819:PropertiesShouldNotReturnArrays", Justification = "By design.")]
-        public string[] Batches { get; set; }
+        public string[] SqlBatches { get; private set; }
     }
 }

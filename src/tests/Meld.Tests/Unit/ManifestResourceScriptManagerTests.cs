@@ -35,7 +35,7 @@ namespace Meld.Tests.Unit
             var b = AppDomain.CurrentDomain.CreateInstanceFromAndUnwrap(dynamicAssembly.PathToAssembly, "B");
 
             var scriptManager = new ManifestResourceScriptManager();
-            var x = scriptManager.GetSqlScripts("test", "dbo");
+            var x = scriptManager.GetSqlScripts("test");
         }
 
         [Fact]
@@ -45,7 +45,7 @@ namespace Meld.Tests.Unit
             var scriptManager = new ManifestResourceScriptManager();
 
             // act
-            var scripts = scriptManager.GetSqlScripts("a", "dbo");
+            var scripts = scriptManager.GetSqlScripts("a");
 
             // assert
             scripts.Should().HaveCount(2);
