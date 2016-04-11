@@ -45,6 +45,10 @@
       <Project>{792607b7-e1f2-4f45-b75e-aee481c20d83}</Project>
       <Name>Meld</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Meld.Tests.Support\Meld.Tests.Support.csproj">
+      <Project>{b5dbb51e-131d-4529-997a-9e71511d3623}</Project>
+      <Name>Meld.Tests.Support</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions">
@@ -101,10 +105,9 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
-    <Folder Include="Bug\" />
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="Bug\Bug0019.cs" />
     <Compile Include="Feature\SqlServerDatabase.cs" />
     <Compile Include="Feature\SqlServerDatabaseUpgrade.cs" />
     <Compile Include="Sdk\SqlServerFixture.cs" />
@@ -116,6 +119,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Scripts\a02.sql" />
     <EmbeddedResource Include="Scripts\a01.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Duplicate01.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
