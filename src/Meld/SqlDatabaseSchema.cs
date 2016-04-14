@@ -108,17 +108,22 @@ namespace Meld
                 throw exception;
             }
 
-            sqlDatabase.Execute(
-                sqlScripts
-                    .Where(sqlScript => sqlScript.Version > version)
-                    .Select(sqlScript => Sanitize(sqlScript, this.schemaName)));
+            using (var connection = new SqlConnection(sqlDatabase.ConnectionString))
+            {
+                sqlDatabase.Execute(
+                    sqlScripts
+                        .Where(sqlScript => sqlScript.Version > version)
+                        .Select(sqlScript => Sanitize(sqlScript, connection.Database, this.schemaName)));
+            }
 
             versionRepository.SetVersion(this.databaseName, this.schemaName, lastSqlScript.Version, lastSqlScript.Description);
         }
 
-        private static SqlScript Sanitize(SqlScript sqlScript, string schemaName)
+        // NOTE (Cameron): It's a little confusing here that in this method 'databaseName' refers to the SQL DB name, not the Meld database name.
+        private static SqlScript Sanitize(SqlScript sqlScript, string databaseName, string schemaName)
         {
             var sqlBatches = sqlScript.SqlBatches
+                .Select(sqlBatch => ReplaceDatabase(sqlBatch, databaseName))
                 .Select(sqlBatch => ReplaceSchema(sqlBatch, schemaName))
                 .ToList();
 
@@ -133,6 +138,15 @@ namespace Meld
             }
 
             return new SqlScript(sqlScript.Version, sqlScript.Description, sqlBatches);
+        }
+
+        private static string ReplaceDatabase(string sqlScriptBatch, string databaseName)
+        {
+            return sqlScriptBatch
+                .Replace("[$database]", string.Concat("[", databaseName, "]"))
+                .Replace(" $database.", string.Concat(" ", databaseName, "."))
+                .Replace("'$database.", string.Concat("'", databaseName, "."))
+                .Replace("'$database'", string.Concat("'", databaseName, "'"));
         }
 
         // TODO (Cameron): This is a mess, so reg-ex? lol

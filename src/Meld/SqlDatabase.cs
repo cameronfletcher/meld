@@ -97,7 +97,7 @@ namespace Meld
             }
         }
 
-        internal static string GetName(Type type)
+        private static string GetName(Type type)
         {
             Guard.Against.Null(() => type);
 
