@@ -127,7 +127,9 @@ namespace Meld
                 .Select(sqlBatch => ReplaceSchema(sqlBatch, schemaName))
                 .ToList();
 
-            if (sqlScript.Version == 1)
+            // HACK (Cameron): This is a fairly nasty hack which basically does not create a schema if the statement contains 'alter database'.
+            if (sqlScript.Version == 1 &&
+                (sqlBatches.Count() != 1 || sqlBatches.Any(sqlBatch => sqlBatch.IndexOf("ALTER DATABASE", StringComparison.OrdinalIgnoreCase) < 0)))
             {
                 sqlBatches.Insert(
                     0,

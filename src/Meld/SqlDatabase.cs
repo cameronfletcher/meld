@@ -9,6 +9,7 @@ namespace Meld
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
 
     internal class SqlDatabase
     {
@@ -69,6 +70,17 @@ namespace Meld
             using (var connection = new SqlConnection(this.ConnectionString))
             {
                 connection.Open();
+
+                var sqlBatches = sqlScripts.SelectMany(sqlScript => sqlScript.SqlBatches);
+                if (sqlBatches.Count() != 1 || sqlBatches.Any(sqlBatch => sqlBatch.IndexOf("ALTER DATABASE", StringComparison.OrdinalIgnoreCase) < 0))
+                {
+                    // NOTE (Cameron): If this is a single SQL batch statement containing 'ALTER DATABASE' then do not execute inside a transaction.
+                    using (var command = new SqlCommand(sqlBatches.Single(), connection))
+                    {
+                        command.ExecuteNonQuery();
+                        return;
+                    }
+                }
 
                 using (var transaction = connection.BeginTransaction())
                 {
