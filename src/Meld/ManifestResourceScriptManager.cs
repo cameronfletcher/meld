@@ -20,6 +20,8 @@ namespace Meld
     /// <seealso cref="Meld.IScriptManager" />
     public class ManifestResourceScriptManager : IScriptManager
     {
+        private static readonly IEqualityComparer<SqlScript> Comparer = new SqlScriptComparer();
+
         /// <summary>
         /// Gets the SQL scripts.
         /// </summary>
@@ -49,6 +51,7 @@ namespace Meld
                         GetSqlScriptVersion(sqlScript.Assembly, sqlScript.ResourceName, databaseName),
                         GetSqlScriptDescription(sqlScript.Assembly),
                         GetSqlScriptBatches(sqlScript.Assembly, sqlScript.ResourceName)))
+                .Distinct(Comparer)
                 .OrderBy(sqlScript => sqlScript.Version)
                 .ToArray();
         }
@@ -65,12 +68,22 @@ namespace Meld
 
         private static int GetSqlScriptVersion(Assembly assembly, string resourceName, string databaseName)
         {
-            return int.Parse(
-                resourceName
-                    .Replace(string.Concat(assembly.GetName().Name, ".Scripts.", databaseName), string.Empty)
-                    .Replace(string.Concat("Meld.Scripts.", databaseName), string.Empty)
-                    .Replace(".sql", string.Empty),
-                CultureInfo.InvariantCulture);
+            var versionString = resourceName
+                .Replace(string.Concat(assembly.GetName().Name, ".Scripts.", databaseName), string.Empty)
+                .Replace(string.Concat("Meld.Scripts.", databaseName), string.Empty)
+                .Replace(".sql", string.Empty);
+
+            var version = 0;
+            if (!int.TryParse(versionString, NumberStyles.Any, CultureInfo.InvariantCulture, out version))
+            {
+                throw new NotSupportedException(
+                    string.Format(
+                        CultureInfo.InvariantCulture,
+                        "Cannot infer the version number for the script named '{0}'.",
+                        resourceName));
+            }
+
+            return version;
         }
 
         private static string GetSqlScriptDescription(Assembly assembly)
@@ -107,6 +120,11 @@ namespace Meld
         // HACK (Cameron): This is a brute force approach to fix inability to load manifest resources from dynamic assemblies. It should be rewritten.
         private static string[] SafeGetManifestResourceNames(Assembly assembly)
         {
+            if (assembly.IsDynamic)
+            {
+                return new string[0];
+            }
+
             try
             {
                 return assembly.GetManifestResourceNames();
@@ -114,6 +132,45 @@ namespace Meld
             catch (NotSupportedException)
             {
                 return new string[0];
+            }
+        }
+
+        private class SqlScriptComparer : IEqualityComparer<SqlScript>
+        {
+            public bool Equals(SqlScript x, SqlScript y)
+            {
+                if (object.ReferenceEquals(x, y))
+                {
+                    return true;
+                }
+
+                if (object.ReferenceEquals(x, null) || object.ReferenceEquals(y, null))
+                {
+                    return false;
+                }
+
+                return x.Version == y.Version && x.SqlBatches.SequenceEqual(y.SqlBatches);
+            }
+
+            public int GetHashCode(SqlScript obj)
+            {
+                if (obj == null)
+                {
+                    return 0;
+                }
+
+                unchecked
+                {
+                    var hashCode = 17;
+                    hashCode = (hashCode * 23) + obj.Version.GetHashCode();
+
+                    foreach (var sqlBatch in obj.SqlBatches)
+                    {
+                        hashCode = (hashCode * 23) + sqlBatch.GetHashCode();
+                    }
+
+                    return hashCode;
+                }
             }
         }
     }

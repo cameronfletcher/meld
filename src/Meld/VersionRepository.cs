@@ -43,6 +43,7 @@ namespace Meld
 
                 connection.Open();
 
+                // NOTE (Cameron): This is designed to throw a SqlException on the first execution against a database only.
                 using (var reader = command.ExecuteReader())
                 {
                     reader.Read();
