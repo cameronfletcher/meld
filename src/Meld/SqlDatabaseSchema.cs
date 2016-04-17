@@ -108,57 +108,9 @@ namespace Meld
                 throw exception;
             }
 
-            using (var connection = new SqlConnection(sqlDatabase.ConnectionString))
-            {
-                sqlDatabase.Execute(
-                    sqlScripts
-                        .Where(sqlScript => sqlScript.Version > version)
-                        .Select(sqlScript => Sanitize(sqlScript, connection.Database, this.schemaName)));
-            }
+            sqlDatabase.Execute(sqlScripts.Where(sqlScript => sqlScript.Version > version), this.schemaName);
 
             versionRepository.SetVersion(this.databaseName, this.schemaName, lastSqlScript.Version, lastSqlScript.Description);
-        }
-
-        // NOTE (Cameron): It's a little confusing here that in this method 'databaseName' refers to the SQL DB name, not the Meld database name.
-        private static SqlScript Sanitize(SqlScript sqlScript, string databaseName, string schemaName)
-        {
-            var sqlBatches = sqlScript.SqlBatches
-                .Select(sqlBatch => ReplaceDatabase(sqlBatch, databaseName))
-                .Select(sqlBatch => ReplaceSchema(sqlBatch, schemaName))
-                .ToList();
-
-            // HACK (Cameron): This is a fairly nasty hack which basically does not create a schema if the statement contains 'alter database'.
-            if (sqlScript.Version == 1 &&
-                (sqlBatches.Count() != 1 || sqlBatches.Any(sqlBatch => sqlBatch.IndexOf("ALTER DATABASE", StringComparison.OrdinalIgnoreCase) < 0)))
-            {
-                sqlBatches.Insert(
-                    0,
-                    ReplaceSchema(
-                        @"IF NOT EXISTS (SELECT * FROM information_schema.schemata WHERE schema_name = 'dbo')
-    EXEC sp_executesql N'CREATE SCHEMA [dbo];';",
-                        schemaName));
-            }
-
-            return new SqlScript(sqlScript.Version, sqlScript.Description, sqlBatches);
-        }
-
-        private static string ReplaceDatabase(string sqlScriptBatch, string databaseName)
-        {
-            return sqlScriptBatch
-                .Replace("[$database]", string.Concat("[", databaseName, "]"))
-                .Replace(" $database.", string.Concat(" ", databaseName, "."))
-                .Replace("'$database.", string.Concat("'", databaseName, "."))
-                .Replace("'$database'", string.Concat("'", databaseName, "'"));
-        }
-
-        // TODO (Cameron): This is a mess, so reg-ex? lol
-        private static string ReplaceSchema(string sqlScriptBatch, string schemaName)
-        {
-            return sqlScriptBatch
-                .Replace("[dbo]", string.Concat("[", schemaName, "]"))
-                .Replace(" dbo.", string.Concat(" ", schemaName, "."))
-                .Replace("'dbo.", string.Concat("'", schemaName, "."))
-                .Replace("'dbo'", string.Concat("'", schemaName, "'"));
         }
     }
 }

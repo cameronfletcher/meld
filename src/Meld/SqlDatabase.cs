@@ -63,24 +63,14 @@ namespace Meld
 
         // LINK (Cameron): http://stackoverflow.com/questions/17008902/sending-several-sql-commands-in-a-single-transaction
         [SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "No vulnerability.")]
-        public void Execute(IEnumerable<SqlScript> sqlScripts)
+        public void Execute(IEnumerable<SqlScript> sqlScripts, string schemaName)
         {
             Guard.Against.NullOrEmptyOrNullElements(() => sqlScripts);
+            Guard.Against.NullOrEmpty(() => schemaName);
 
             using (var connection = new SqlConnection(this.ConnectionString))
             {
                 connection.Open();
-
-                var sqlBatches = sqlScripts.SelectMany(sqlScript => sqlScript.SqlBatches);
-                if (sqlBatches.Count() != 1 || sqlBatches.Any(sqlBatch => sqlBatch.IndexOf("ALTER DATABASE", StringComparison.OrdinalIgnoreCase) < 0))
-                {
-                    // NOTE (Cameron): If this is a single SQL batch statement containing 'ALTER DATABASE' then do not execute inside a transaction.
-                    using (var command = new SqlCommand(sqlBatches.Single(), connection))
-                    {
-                        command.ExecuteNonQuery();
-                        return;
-                    }
-                }
 
                 using (var transaction = connection.BeginTransaction())
                 {
@@ -88,12 +78,23 @@ namespace Meld
                     {
                         foreach (var sqlScript in sqlScripts)
                         {
-                            foreach (var batch in sqlScript.SqlBatches)
+                            foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName))
                             {
-                                using (var command = new SqlCommand(batch, connection, transaction))
+                                if (sqlScript.SupportedInTransaction)
                                 {
-                                    // NOTE (Cameron): Wow, that indented quickly.
-                                    command.ExecuteNonQuery();
+                                    using (var command = new SqlCommand(sqlBatch, connection, transaction))
+                                    {
+                                        // NOTE (Cameron): This will only ever be a single batch in a script.
+                                        command.ExecuteNonQuery();
+                                    }
+                                }
+                                else
+                                {
+                                    using (var command = new SqlCommand(sqlBatch, connection))
+                                    {
+                                        // NOTE (Cameron): Wow, that indented quickly.
+                                        command.ExecuteNonQuery();
+                                    }
                                 }
                             }
                         }

@@ -112,6 +112,7 @@
     <Compile Include="Feature\SqlServerDatabaseUpgrade.cs" />
     <Compile Include="Sdk\SqlServerFixture.cs" />
     <Compile Include="Unit\ManifestResourceScriptManagerTests.cs" />
+    <Compile Include="Unit\SqlScriptTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
