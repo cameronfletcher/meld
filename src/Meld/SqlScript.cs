@@ -79,7 +79,7 @@ For more information: https://technet.microsoft.com/en-us/library/ms191544(v=sql
             }
 
             // HACK (Cameron): This does not attempt to create a schema if the scripts contain one of the statements that is not supported in transactions.
-            if (this.Version == 1 && this.SupportedInTransaction)
+            if (this.SupportedInTransaction)
             {
                 this.sqlBatches.Insert(
                     0,

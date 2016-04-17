@@ -72,39 +72,41 @@ namespace Meld
             {
                 connection.Open();
 
-                using (var transaction = connection.BeginTransaction())
+                // TODO (Cameron): Try catch with rollback script?
+                foreach (var sqlScript in sqlScripts)
                 {
-                    try
+                    if (sqlScript.SupportedInTransaction)
                     {
-                        foreach (var sqlScript in sqlScripts)
+                        using (var transaction = connection.BeginTransaction())
                         {
-                            foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName))
+                            try
                             {
-                                if (sqlScript.SupportedInTransaction)
+                                foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName))
                                 {
                                     using (var command = new SqlCommand(sqlBatch, connection, transaction))
                                     {
-                                        // NOTE (Cameron): This will only ever be a single batch in a script.
                                         command.ExecuteNonQuery();
                                     }
                                 }
-                                else
-                                {
-                                    using (var command = new SqlCommand(sqlBatch, connection))
-                                    {
-                                        // NOTE (Cameron): Wow, that indented quickly.
-                                        command.ExecuteNonQuery();
-                                    }
-                                }
+
+                                transaction.Commit();
+                            }
+                            catch (Exception)
+                            {
+                                transaction.Rollback();
+                                throw;
                             }
                         }
-
-                        transaction.Commit();
                     }
-                    catch (Exception)
+                    else
                     {
-                        transaction.Rollback();
-                        throw;
+                        foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName))
+                        {
+                            using (var command = new SqlCommand(sqlBatch, connection))
+                            {
+                                command.ExecuteNonQuery();
+                            }
+                        }
                     }
                 }
             }
