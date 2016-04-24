@@ -9,6 +9,7 @@ namespace Meld
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Diagnostics.CodeAnalysis;
+    using System.Linq;
 
     internal class SqlDatabase
     {
@@ -62,42 +63,56 @@ namespace Meld
 
         // LINK (Cameron): http://stackoverflow.com/questions/17008902/sending-several-sql-commands-in-a-single-transaction
         [SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "No vulnerability.")]
-        public void Execute(IEnumerable<SqlScript> sqlScripts)
+        public void Execute(IEnumerable<SqlScript> sqlScripts, string schemaName)
         {
             Guard.Against.NullOrEmptyOrNullElements(() => sqlScripts);
+            Guard.Against.NullOrEmpty(() => schemaName);
 
             using (var connection = new SqlConnection(this.ConnectionString))
             {
                 connection.Open();
 
-                using (var transaction = connection.BeginTransaction())
+                // TODO (Cameron): Try catch with rollback script?
+                foreach (var sqlScript in sqlScripts)
                 {
-                    try
+                    if (sqlScript.SupportedInTransaction)
                     {
-                        foreach (var sqlScript in sqlScripts)
+                        using (var transaction = connection.BeginTransaction())
                         {
-                            foreach (var batch in sqlScript.SqlBatches)
+                            try
                             {
-                                using (var command = new SqlCommand(batch, connection, transaction))
+                                foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName))
                                 {
-                                    // NOTE (Cameron): Wow, that indented quickly.
-                                    command.ExecuteNonQuery();
+                                    using (var command = new SqlCommand(sqlBatch, connection, transaction))
+                                    {
+                                        command.ExecuteNonQuery();
+                                    }
                                 }
+
+                                transaction.Commit();
+                            }
+                            catch (Exception)
+                            {
+                                transaction.Rollback();
+                                throw;
                             }
                         }
-
-                        transaction.Commit();
                     }
-                    catch (Exception)
+                    else
                     {
-                        transaction.Rollback();
-                        throw;
+                        foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName))
+                        {
+                            using (var command = new SqlCommand(sqlBatch, connection))
+                            {
+                                command.ExecuteNonQuery();
+                            }
+                        }
                     }
                 }
             }
         }
 
-        internal static string GetName(Type type)
+        private static string GetName(Type type)
         {
             Guard.Against.Null(() => type);
 

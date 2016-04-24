@@ -16,6 +16,7 @@ Meld contributors</authors>
     <tags>Meld SQL Server script version management evolve evolution</tags>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System" targetFramework="net45" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework="net45" />
     </frameworkAssemblies>
   </metadata>
   <files>

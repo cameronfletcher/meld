@@ -105,13 +105,19 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\CanInitializeDatabase01.sql" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Bug\Bug0019.cs" />
     <Compile Include="Feature\SqlServerDatabase.cs" />
     <Compile Include="Feature\SqlServerDatabaseUpgrade.cs" />
+    <Compile Include="Sdk\DatabaseCollection.cs" />
+    <Compile Include="Sdk\Integration.cs" />
+    <Compile Include="Sdk\SqlServerFeature.cs" />
     <Compile Include="Sdk\SqlServerFixture.cs" />
     <Compile Include="Unit\ManifestResourceScriptManagerTests.cs" />
+    <Compile Include="Unit\SqlScriptTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
@@ -122,6 +128,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Scripts\Duplicate01.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\CanAlterDatabase01.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\CanAlterDatabase02.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

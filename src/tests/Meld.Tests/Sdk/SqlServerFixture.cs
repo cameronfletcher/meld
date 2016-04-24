@@ -2,7 +2,7 @@
 //  Copyright (c) Meld contributors. All rights reserved.
 // </copyright>
 
-namespace dddlib.Persistence.Tests.Sdk
+namespace Meld.Tests.Sdk
 {
     using System;
     using System.Configuration;
