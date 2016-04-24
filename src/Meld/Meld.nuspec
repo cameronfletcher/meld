@@ -11,7 +11,7 @@ Meld contributors</authors>
     <licenseUrl>https://raw.githubusercontent.com/cameronfletcher/meld/dev/LICENSE.mit.txt</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A database version management library for SQL Server and .NET</description>
-    <releaseNotes>TBD</releaseNotes>
+    <releaseNotes>Initial release</releaseNotes>
     <copyright>Copyright (c) Meld contributors.</copyright>
     <tags>Meld SQL Server script version management evolve evolution</tags>
     <frameworkAssemblies>
