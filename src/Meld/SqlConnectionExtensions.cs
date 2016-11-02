@@ -60,7 +60,7 @@ namespace System.Data.SqlClient
         }
 
         /// <summary>
-        /// Initializes the database schema for the specified schema name and type.
+        /// Initializes the database schema for the specified schema name and database name.
         /// </summary>
         /// <param name="connection">The connection.</param>
         /// <param name="schemaName">Name of the schema.</param>
@@ -70,6 +70,67 @@ namespace System.Data.SqlClient
             Guard.Against.Null(() => connection);
 
             new SqlDatabase(connection.ConnectionString, databaseName).InitializeSchema(schemaName);
+        }
+
+        /// <summary>
+        /// Initializes the database schema.
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <returns>The initialized connection.</returns>
+        public static SqlConnection WithInitializedSchema(this SqlConnection connection)
+        {
+            connection.InitializeSchema();
+            return connection;
+        }
+
+        /// <summary>
+        /// Initializes the database schema for the specified schema name.
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="schemaName">Name of the schema.</param>
+        /// <returns>The initialized connection.</returns>
+        public static SqlConnection WithInitializedSchema(this SqlConnection connection, string schemaName)
+        {
+            connection.InitializeSchema(schemaName);
+            return connection;
+        }
+
+        /// <summary>
+        /// Initializes the database schema for the specified type.
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="type">The type supported by the database schema.</param>
+        /// <returns>The initialized connection.</returns>
+        public static SqlConnection WithInitializedSchema(this SqlConnection connection, Type type)
+        {
+            connection.InitializeSchema(type);
+            return connection;
+        }
+
+        /// <summary>
+        /// Initializes the database schema for the specified schema name and type.
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="schemaName">Name of the schema.</param>
+        /// <param name="type">The type.</param>
+        /// <returns>The initialized connection.</returns>
+        public static SqlConnection WithInitializedSchema(this SqlConnection connection, string schemaName, Type type)
+        {
+            connection.InitializeSchema(schemaName, type);
+            return connection;
+        }
+
+        /// <summary>
+        /// Initializes the database schema for the specified schema name and database name.
+        /// </summary>
+        /// <param name="connection">The connection.</param>
+        /// <param name="schemaName">Name of the schema.</param>
+        /// <param name="databaseName">Name of the database.</param>
+        /// <returns>The initialized connection.</returns>
+        public static SqlConnection WithInitializedSchema(this SqlConnection connection, string schemaName, string databaseName)
+        {
+            connection.InitializeSchema(schemaName, databaseName);
+            return connection;
         }
     }
 }
