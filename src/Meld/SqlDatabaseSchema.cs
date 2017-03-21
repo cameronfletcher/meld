@@ -39,7 +39,7 @@ namespace Meld
 
             var versionRepository = new VersionRepository(sqlDatabase.ConnectionString);
 
-            var version = 0;
+            var version = new Version();
             try
             {
                 version = versionRepository.GetVersion(this.databaseName, this.schemaName);
@@ -87,12 +87,12 @@ namespace Meld
             }
 
             var lastSqlScript = sqlScripts.Last();
-            if (lastSqlScript.Version == version)
+            if (lastSqlScript.Version == version.Number)
             {
                 return;
             }
 
-            if (lastSqlScript.Version < version)
+            if (lastSqlScript.Version < version.Number)
             {
                 var exception = (SqlException)FormatterServices.GetUninitializedObject(typeof(SqlException));
                 typeof(SqlException)
@@ -102,15 +102,17 @@ namespace Meld
                         string.Format(
                             CultureInfo.InvariantCulture,
                             "The database version '{0}' is ahead of the database version '{1}' supported by this library.",
-                            version,
+                            version.Number,
                             lastSqlScript.Version));
 
                 throw exception;
             }
 
-            sqlDatabase.Execute(sqlScripts.Where(sqlScript => sqlScript.Version > version), this.schemaName);
+            sqlDatabase.Execute(sqlScripts.Where(sqlScript => sqlScript.Version > version.Number), this.schemaName);
 
-            versionRepository.SetVersion(this.databaseName, this.schemaName, lastSqlScript.Version, lastSqlScript.Description);
+            version.Apply(sqlScripts);
+
+            versionRepository.SetVersion(this.databaseName, this.schemaName, lastSqlScript.Description, version);
         }
     }
 }

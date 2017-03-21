@@ -60,6 +60,7 @@
     <Compile Include="SqlDatabase.cs" />
     <Compile Include="SqlDatabaseSchema.cs" />
     <Compile Include="SqlScript.cs" />
+    <Compile Include="Version.cs" />
     <Compile Include="VersionRepository.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +93,9 @@
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\Newtonsoft.Json.dll" />
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="..\..\packages\StyleCop.Analyzers.1.0.0\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Scripts\Meld03.sql" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
