@@ -4,13 +4,14 @@
 
 namespace Meld.Tests.Feature
 {
+    using System;
     using System.Data;
     using System.Data.SqlClient;
-    using Sdk;
+    using FluentAssertions;
+    using Meld.Tests.Sdk;
     using Xbehave;
     using Xunit;
-    using FluentAssertions;
-    using System;
+
     [Collection("SQL Server Collection")]
     public class SqlServerDatabase : SqlServerFeature
     {

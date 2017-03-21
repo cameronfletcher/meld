@@ -81,7 +81,7 @@ namespace Meld
                         {
                             try
                             {
-                                foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName))
+                                foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName, connection.ServerVersion))
                                 {
                                     using (var command = new SqlCommand(sqlBatch, connection, transaction))
                                     {
@@ -100,7 +100,7 @@ namespace Meld
                     }
                     else
                     {
-                        foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName))
+                        foreach (var sqlBatch in sqlScript.GetSqlBatches(connection.Database, schemaName, connection.ServerVersion))
                         {
                             using (var command = new SqlCommand(sqlBatch, connection))
                             {

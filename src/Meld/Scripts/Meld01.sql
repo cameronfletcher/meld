@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Version]
 (
-	[Version] INT NOT NULL , 
+    [Version] INT NOT NULL , 
     [Type] VARCHAR(511) NOT NULL, 
     [Schema] VARCHAR(128) NOT NULL, 
     [Description] VARCHAR(MAX) NOT NULL, 
@@ -21,7 +21,7 @@ GO
 CREATE PROCEDURE [dbo].[SetVersion]
     @Schema VARCHAR(128),
     @Type VARCHAR(511),
-	@Version INT,
+    @Version INT,
     @Description VARCHAR(MAX)
 AS
 SET NOCOUNT ON;

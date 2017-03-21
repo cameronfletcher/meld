@@ -10,6 +10,7 @@ namespace Meld
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
     using System.Linq;
+    using System.Text;
     using System.Text.RegularExpressions;
 
     /// <summary>
@@ -88,6 +89,14 @@ For more information: https://technet.microsoft.com/en-us/library/ms191544(v=sql
             }
         }
 
+        private enum Directives
+        {
+            None = 0,
+            IfBlock = 1,
+            ElseIfBlock = 2,
+            ElseBlock = 3,
+        }
+
         /// <summary>
         /// Gets the version for the script.
         /// </summary>
@@ -111,12 +120,14 @@ For more information: https://technet.microsoft.com/en-us/library/ms191544(v=sql
         /// </summary>
         /// <param name="databaseName">Name of the database.</param>
         /// <param name="schemaName">Name of the schema.</param>
+        /// <param name="serverVersion">The server version.</param>
         /// <returns>The SQL batches.</returns>
-        public IEnumerable<string> GetSqlBatches(string databaseName, string schemaName)
+        public IEnumerable<string> GetSqlBatches(string databaseName, string schemaName, string serverVersion)
         {
             return this.sqlBatches
                 .Select(sqlBatch => ReplaceDatabase(sqlBatch, databaseName))
                 .Select(sqlBatch => ReplaceSchema(sqlBatch, schemaName))
+                .Select(sqlBatch => ProcessPragamaDirectives(sqlBatch, serverVersion))
                 .ToArray();
         }
 
@@ -150,6 +161,100 @@ For more information: https://technet.microsoft.com/en-us/library/ms191544(v=sql
                 .Replace(" dbo.", string.Concat(" ", schemaName, "."))
                 .Replace("'dbo.", string.Concat("'", schemaName, "."))
                 .Replace("'dbo'", string.Concat("'", schemaName, "'"));
+        }
+
+        // NOTE (Cameron): This should probably be split out elsewhere.
+        private static string ProcessPragamaDirectives(string sqlScriptBatch, string serverVersion)
+        {
+            var stringBuilder = new StringBuilder();
+            var currentDirective = default(Directives);
+            var condition = true;
+            var conditionSatisfied = true;
+
+            foreach (var line in sqlScriptBatch.Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var trimmedLine = line.Trim();
+
+                if (trimmedLine.StartsWith("#", StringComparison.OrdinalIgnoreCase))
+                {
+                    var directive = default(Directives);
+
+                    // NOTE (Cameron): Directive parsing...
+                    if (trimmedLine.StartsWith("#if ", StringComparison.OrdinalIgnoreCase) && trimmedLine.Length > 4)
+                    {
+                        directive = Directives.IfBlock;
+                        var versionSubstring = trimmedLine.Substring(4, Math.Min(serverVersion.Length, trimmedLine.Length - 4));
+                        condition = conditionSatisfied = serverVersion.StartsWith(versionSubstring, StringComparison.OrdinalIgnoreCase);
+                    }
+                    else if (trimmedLine.StartsWith("#elseif ", StringComparison.OrdinalIgnoreCase) && trimmedLine.Length > 8)
+                    {
+                        directive = Directives.ElseIfBlock;
+                        var versionSubstring = trimmedLine.Substring(8, Math.Min(serverVersion.Length, trimmedLine.Length - 8));
+                        condition = serverVersion.StartsWith(versionSubstring, StringComparison.OrdinalIgnoreCase);
+                        conditionSatisfied = conditionSatisfied || condition;
+                    }
+                    else if (trimmedLine.StartsWith("#else", StringComparison.OrdinalIgnoreCase) && trimmedLine.Length == 5)
+                    {
+                        directive = Directives.ElseBlock;
+                        condition = !conditionSatisfied;
+                    }
+                    else if (trimmedLine.StartsWith("#endif", StringComparison.OrdinalIgnoreCase) && trimmedLine.Length == 6)
+                    {
+                        directive = Directives.None;
+                        condition = conditionSatisfied = true;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(
+                            string.Format(CultureInfo.InvariantCulture, "Unable to parse directive: '{0}'.", trimmedLine));
+                    }
+
+                    // NOTE (Cameron): Program flow...
+                    switch (currentDirective)
+                    {
+                        case Directives.None:
+                            if (directive == Directives.IfBlock)
+                            {
+                                break;
+                            }
+
+                            goto default;
+
+                        case Directives.IfBlock:
+                        case Directives.ElseIfBlock:
+                            if (directive == Directives.ElseIfBlock || directive == Directives.ElseBlock || directive == Directives.None)
+                            {
+                                break;
+                            }
+
+                            goto default;
+
+                        case Directives.ElseBlock:
+                            if (directive == Directives.None)
+                            {
+                                break;
+                            }
+
+                            goto default;
+
+                        default:
+                            throw new InvalidOperationException(
+                                string.Format(CultureInfo.InvariantCulture, "Unable to process directive (unexpected order): '{0}'.", trimmedLine));
+                    }
+
+                    currentDirective = directive;
+                }
+                else
+                {
+                    if (condition)
+                    {
+                        stringBuilder.AppendLine(line);
+                    }
+                }
+            }
+
+            // NOTE (Cameron): Length minus '2' removes the trailing line feed and carriage return added by the 'AppendLine' method.
+            return stringBuilder.ToString(0, stringBuilder.Length - 2);
         }
 
         internal class Comparer : IEqualityComparer<SqlScript>
