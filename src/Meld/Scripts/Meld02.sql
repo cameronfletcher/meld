@@ -17,7 +17,7 @@ GO
 ALTER PROCEDURE [dbo].[SetVersion]
     @Database VARCHAR(511),
     @Schema VARCHAR(128),
-    @Version INT,
+	@Version INT,
     @Description VARCHAR(MAX)
 AS
 SET NOCOUNT ON;
