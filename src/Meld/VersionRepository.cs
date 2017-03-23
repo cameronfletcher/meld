@@ -8,6 +8,7 @@ namespace Meld
     using System.Collections.Generic;
     using System.Data;
     using System.Data.SqlClient;
+    using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
 
     internal class VersionRepository : IVersionRepository
@@ -61,40 +62,46 @@ namespace Meld
             }
         }
 
+        [SuppressMessage(
+            "Microsoft.Reliability",
+            "CA2000:Dispose objects before losing scope",
+            Justification = "http://stackoverflow.com/questions/913228/should-i-dispose-dataset-and-datatable")]
         public void SetVersion(string databaseName, string schemaName, string description, Version version)
         {
             using (var connection = new SqlConnection(this.connectionString))
             {
                 connection.Open();
 
-                var versionsData = new DataTable();
-                versionsData.Columns.Add("Version").DataType = typeof(int);
-                versionsData.Columns.Add("Script").DataType = typeof(string);
-
-                foreach (var script in version.GetSqlScripts())
+                using (var versionsData = new DataTable() { Locale = CultureInfo.InvariantCulture })
                 {
-                    versionsData.Rows.Add(
-                        script.Version,
-                        string.Concat(
-                            string.Join("\r\nGO\r\n\r\n", script.GetSqlBatches(databaseName, schemaName, connection.ServerVersion)),
-                            "\r\nGO"));
-                }
+                    versionsData.Columns.Add("Version").DataType = typeof(int);
+                    versionsData.Columns.Add("Script").DataType = typeof(string);
 
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandType = CommandType.Text;
-                    command.CommandText = @"CREATE TABLE #Versions (
+                    foreach (var script in version.GetSqlScripts())
+                    {
+                        versionsData.Rows.Add(
+                            script.Version,
+                            string.Concat(
+                                string.Join("\r\nGO\r\n\r\n", script.GetSqlBatches(databaseName, schemaName, connection.ServerVersion)),
+                                "\r\nGO"));
+                    }
+
+                    using (var command = connection.CreateCommand())
+                    {
+                        command.CommandType = CommandType.Text;
+                        command.CommandText = @"CREATE TABLE #Versions (
     [Version] INT NOT NULL,
     [Script] VARCHAR(MAX) NOT NULL
 );";
 
-                    command.ExecuteNonQuery();
-                }
+                        command.ExecuteNonQuery();
+                    }
 
-                using (var bulkCopy = new SqlBulkCopy(connection))
-                {
-                    bulkCopy.DestinationTableName = "#Versions";
-                    bulkCopy.WriteToServer(versionsData);
+                    using (var bulkCopy = new SqlBulkCopy(connection))
+                    {
+                        bulkCopy.DestinationTableName = "#Versions";
+                        bulkCopy.WriteToServer(versionsData);
+                    }
                 }
 
                 using (var command = connection.CreateCommand())

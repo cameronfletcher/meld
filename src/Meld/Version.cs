@@ -6,6 +6,7 @@ namespace Meld
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
 
     /// <summary>
@@ -82,6 +83,7 @@ namespace Meld
         /// Gets the SQL scripts.
         /// </summary>
         /// <returns>The SQL scripts.</returns>
+        [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "Inappropriate.")]
         public IEnumerable<SqlScript> GetSqlScripts()
         {
             return this.sqlBatches.OrderBy(e => e.Key).Select(e => e.Value);
