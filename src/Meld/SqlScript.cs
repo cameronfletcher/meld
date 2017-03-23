@@ -253,8 +253,6 @@ For more information: https://technet.microsoft.com/en-us/library/ms191544(v=sql
                 }
             }
 
-            // NOTE (Cameron): Length minus '2' removes the trailing line feed and carriage return added by the 'AppendLine' method.
-            ////return stringBuilder.ToString(0, stringBuilder.Length >= 2 ? stringBuilder.Length - 2 : stringBuilder.Length);
             return stringBuilder.ToString();
         }
 

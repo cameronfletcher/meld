@@ -6,8 +6,8 @@ namespace Meld
 {
     internal interface IVersionRepository
     {
-        int GetVersion(string databaseName, string schemaName);
+        Version GetVersion(string databaseName, string schemaName);
 
-        void SetVersion(string databaseName, string schemaName, int version, string description);
+        void SetVersion(string databaseName, string schemaName, string description, Version version);
     }
 }

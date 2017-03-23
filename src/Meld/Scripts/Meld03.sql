@@ -62,18 +62,34 @@ ALTER PROCEDURE [dbo].[GetVersion]
     @Schema VARCHAR(128)
 AS
 SET NOCOUNT ON;
-SELECT MAX([Version]) AS [Version]
+SELECT [Version], [Script]
 FROM [dbo].[Versions]
-WHERE [Schema] = @Schema AND [Database] = @Database;
+WHERE [Database] = @Database AND [Schema] = @Schema
+ORDER BY [Version];
 GO
 
 ALTER PROCEDURE [dbo].[SetVersion]
     @Database VARCHAR(511),
     @Schema VARCHAR(128),
-    @Version INT,
     @Description VARCHAR(MAX)
 AS
 SET NOCOUNT ON;
-INSERT INTO [dbo].[Versions]
-VALUES (@Version, @Database, @Schema, @Description);
+
+WITH [Target] AS
+(
+    SELECT [Version], [Database], [Schema], [Description], [Sequence], [Script]
+    FROM [dbo].[Versions]
+    WHERE [Database] = @Database AND [Schema] = @Schema
+)
+MERGE [Target]
+USING (
+    SELECT [Version], [Script]
+    FROM #Versions
+) AS [Source] ON [Target].[Version] = [Source].[Version]
+WHEN MATCHED AND [Target].[Script] IS NULL THEN
+    UPDATE SET
+        [Target].[Script] = [Source].[Script]
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT ([Version], [Database], [Schema], [Description], [Script])
+    VALUES ([Source].[Version], @Database, @Schema, @Description, [Source].[Script]);
 GO
