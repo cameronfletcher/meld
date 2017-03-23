@@ -87,11 +87,6 @@ namespace Meld
             }
 
             var lastSqlScript = sqlScripts.Last();
-            if (lastSqlScript.Version == version.Number)
-            {
-                return;
-            }
-
             if (lastSqlScript.Version < version.Number)
             {
                 var exception = (SqlException)FormatterServices.GetUninitializedObject(typeof(SqlException));
@@ -108,7 +103,10 @@ namespace Meld
                 throw exception;
             }
 
-            sqlDatabase.Execute(sqlScripts.Where(sqlScript => sqlScript.Version > version.Number), this.schemaName);
+            if (lastSqlScript.Version != version.Number)
+            {
+                sqlDatabase.Execute(sqlScripts.Where(sqlScript => sqlScript.Version > version.Number), this.schemaName);
+            }
 
             version.Apply(sqlScripts);
 

@@ -68,6 +68,12 @@ namespace Meld
             Justification = "http://stackoverflow.com/questions/913228/should-i-dispose-dataset-and-datatable")]
         public void SetVersion(string databaseName, string schemaName, string description, Version version)
         {
+            var sqlScripts = new List<SqlScript>(version.GetSqlScripts());
+            if (sqlScripts.Count == 0)
+            {
+                return;
+            }
+
             using (var connection = new SqlConnection(this.connectionString))
             {
                 connection.Open();
@@ -77,7 +83,7 @@ namespace Meld
                     versionsData.Columns.Add("Version").DataType = typeof(int);
                     versionsData.Columns.Add("Script").DataType = typeof(string);
 
-                    foreach (var script in version.GetSqlScripts())
+                    foreach (var script in sqlScripts)
                     {
                         versionsData.Rows.Add(
                             script.Version,
