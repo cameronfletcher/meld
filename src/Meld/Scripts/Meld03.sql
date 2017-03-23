@@ -31,7 +31,13 @@ BEGIN
         [Version].[Schema],
         ISNULL([Description].[Description], '[migration]') AS [Description],
         ROW_NUMBER() OVER (ORDER BY [Version].[Database], [Version].[Schema], [Number].[number]) AS [Sequence]
-    FROM [database].[Versions] [Version]
+    FROM (
+        SELECT
+            MAX([Version]) AS [Version],
+            [Database],
+            [Schema]
+        FROM [dbo].[Versions]
+        GROUP BY [Database], [Schema]) [Version]
         CROSS JOIN [master]..[spt_values] [Number]
         LEFT JOIN (
         SELECT
@@ -39,7 +45,7 @@ BEGIN
             [Database],
             [Schema],
             [Description]
-        FROM [database].[Versions]) [Description] ON [Description].[Version] = [Number].[number]
+        FROM [dbo].[Versions]) [Description] ON [Description].[Version] = [Number].[number]
             AND [Description].[Database] = [Version].[Database]
             AND [Description].[Schema] = [Version].[Schema]
     WHERE [Number].[type] = 'P'
