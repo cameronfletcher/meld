@@ -52,7 +52,7 @@ namespace Meld
                     while (reader.Read())
                     {
                         var version = reader.GetInt32(0);
-                        var script = reader.IsDBNull(1) ? null : reader.GetString(1);
+                        var script = reader.FieldCount == 1 || reader.IsDBNull(1) ? null : reader.GetString(1);
 
                         sqlBatches.Add(version, script);
                     }
